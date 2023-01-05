@@ -1,0 +1,36 @@
+library(tidyverse)
+library(lmtest)
+
+data <- read.csv('data.csv', na.strings = "", stringsAsFactors = T)
+
+hist(data$Hours.per.day)
+
+
+contrasts(factor(data$While.working))
+
+df <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+              "Fav.genre", "Anxiety", "Depression", "Insomnia", "OCD",
+              "Music.effects")]
+
+fit <- lm(Hours.per.day ~ ., data = df)
+summary(fit)
+
+df2 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+               "Anxiety", "Depression", "Insomnia", "OCD", "Music.effects")]
+
+fit2 <- lm(Hours.per.day ~ ., data = df2)
+summary(fit2)
+
+df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+               "Insomnia", "Music.effects")]
+
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+summary(fit3)
+
+shapiro.test(fit3$residuals)
+bptest(formula(fit3), studentize = F, data = df3)
+
+par(mfrow=c(1,2))
+plot(fitted.values(fit3),residuals(fit3),xlab = 'Valores ajustedos' , ylab='Resíduos')
+qqnorm(residuals(fit3))
+qqline(residuals(fit3))
