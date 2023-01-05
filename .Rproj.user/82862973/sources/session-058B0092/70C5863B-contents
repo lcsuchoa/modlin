@@ -1,0 +1,73 @@
+data <- read.csv('data.csv', na.strings = "", stringsAsFactors = T)
+library(tidyverse)
+View(data)
+constants(factor(data$While.working))
+constrats(factor(data$While.working))
+contrasts(factor(data$While.working))
+df <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Fav.genre", "Anxiety", "Depression", "Insomnia", "OCD", "Music.effects")]
+fit <- lm(Hours.per.day ~ ., data = df)
+summary(fit)
+fit2 <- lm(Hours.per.day ~ ., data = df2)
+df2 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Anxiety", "Depression", "Insomnia", "OCD", "Music.effects")]
+fit2 <- lm(Hours.per.day ~ ., data = df2)
+summary(fit2)
+df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Insomnia", "OCD", "Music.effects")]
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+summary(fit3)
+df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Insomnia", "Music.effects")]
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+summary(fit3)
+df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Insomnia")]
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+summary(fit3)
+shapiro.test(fit3$residuals)
+library(lmtest)
+library(lmtest)
+install.packages('zoo')
+install.packages("zoo")
+library(tidyverse)
+library(lmtest)
+bptest(fit3$residuals, studentize = F)
+bptest(fit3$residuals, studentize = F)
+bptest(formula(fit3), studentize = F)
+bptest(formula(fit3), studentize = F)
+library(tidyverse)
+library(lmtest)
+data <- read.csv('data.csv', na.strings = "", stringsAsFactors = T)
+contrasts(factor(data$While.working))
+df <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Fav.genre", "Anxiety", "Depression", "Insomnia", "OCD",
+"Music.effects")]
+fit <- lm(Hours.per.day ~ ., data = df)
+summary(fit)
+df2 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Anxiety", "Depression", "Insomnia", "OCD", "Music.effects")]
+fit2 <- lm(Hours.per.day ~ ., data = df2)
+summary(fit2)
+df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Insomnia")]
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+summary(fit3)
+shapiro.test(fit3$residuals)
+bptest(formula(fit3), studentize = F)
+Y <- data$Hours.per.day
+Y <- data$Hours.per.day
+fit3 <- lm(Y ~ ., data = df3)
+summary(fit3)
+shapiro.test(fit3$residuals)
+bptest(formula(fit3), studentize = F)
+bptest(formula(fit3), studentize = F)
+formula(fit)
+formula(fit3)
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+formula(fit3)
+bptest(formula(fit3), studentize = F, data = df3)
+df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+"Insomnia", "Music.effects")]
+fit3 <- lm(Hours.per.day ~ ., data = df3)
+summary(fit3)

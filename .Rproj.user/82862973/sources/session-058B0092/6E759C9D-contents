@@ -7,8 +7,6 @@ library(DAAG)
 data <- read.csv('data.csv', stringsAsFactors = T, na.strings="")
 data <- na.omit(data)
 
-
-
 ### -----
 ### analise exploratoria
 
@@ -72,6 +70,11 @@ fit3 <- lm(Hours.per.day ~ ., data = df3)
 summary(fit3)
 
 shapiro.test(fit3$residuals)
+
+#pontos influentes
+infmed=influence.measures(fit3)
+infmed
+summary(infmed)
 
 
 ### remover outliers?
