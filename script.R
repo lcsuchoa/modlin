@@ -4,6 +4,7 @@
 library(tidyverse)
 library(DAAG)
 
+#setwd('/Users/lucasgomes/Documents/faculdade/modlin')
 data <- read.csv('data.csv', stringsAsFactors = T, na.strings="")
 data <- na.omit(data)
 
@@ -12,12 +13,17 @@ data <- na.omit(data)
 
 summary(data)
 
-
-
 # dataframe com as variaveis numericas
 df1 <- data[, c("Age", "Hours.per.day", "While.working", "Instrumentalist",
                 "Composer", "Exploratory", "Foreign.languages", "BPM", "Anxiety",
                 "Depression", "Insomnia", "OCD")]
+
+df_1 <- data[, c("Age", "Hours.per.day", "BPM", "Anxiety",
+                 "Depression", "Insomnia", "OCD")]
+
+### PRECISA TER TABELA DE CORRELACAO
+cor(df_1)
+# phi de cramer pra var nao continuas
 
 # a idade dos respondentes varia de 10 a 89, mediana é 21 anos
 hist(data$Age)
@@ -26,6 +32,7 @@ boxplot(data$Age)
 # a quantidade de horas de música por dia varia de 0 a 24, a mediana é 3
 hist(data$Hours.per.day)
 boxplot(data$Hours.per.day)
+# tirar os outliers
 
 # analise de correlaçao
 plot(df1)
@@ -69,7 +76,27 @@ summary(fit2)
 fit3 <- lm(Hours.per.day ~ ., data = df3)
 summary(fit3)
 
-shapiro.test(fit3$residuals)
+
+res3 = rstudent(fit3)
+plot(fit3$fitted.values, res3) # homoscedastidicidade, outlier e relacao linear
+abline(h=0)
+
+hist(res3) # normalidade dos erros
+
+
+# stepwise
+
+age = data$Age
+bpm = data$BPM
+anxiety = data$Anxiety
+depression = data$Depression
+insomnia = data$Insomnia
+ocd = data$OCD
+
+lm0<-lm(df_1$Hours.per.day~1)
+lmax<-lm(df_1$Hours.per.day~age+bpm+anxiety+depression+insomnia+ocd)
+step(lm0,scope=list(lower=lm0,upper=lmax),trace=TRUE,test="F")
+
 
 #pontos influentes
 infmed=influence.measures(fit3)
@@ -77,4 +104,21 @@ infmed
 summary(infmed)
 
 
-### remover outliers?
+
+
+
+
+### requisitos
+# resumo, palavras-chave, introducao com motivacao, revisao bibliografica,
+# descricao e tratamento da base de dados, metodologia, analise dos resultados,
+# conclusao,referencias, apendice (opcional)
+
+### passo a passo
+# analise exploratoria
+# testar transformacao de variavel
+# analise de correlacao
+# stepwise para definir variaveis
+
+### perguntas
+# como trabalhar com os generos?
+# teria problema o modelo ficar com r2 ruim?
