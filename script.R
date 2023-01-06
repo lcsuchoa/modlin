@@ -4,7 +4,7 @@
 library(tidyverse)
 library(DAAG)
 
-#setwd('/Users/lucasgomes/Documents/faculdade/modlin')
+setwd('/Users/lucasgomes/Documents/faculdade/modlin')
 data <- read.csv('data.csv', stringsAsFactors = T, na.strings="")
 data <- na.omit(data)
 
@@ -18,7 +18,7 @@ df1 <- data[, c("Age", "Hours.per.day", "While.working", "Instrumentalist",
                 "Composer", "Exploratory", "Foreign.languages", "BPM", "Anxiety",
                 "Depression", "Insomnia", "OCD")]
 
-df_1 <- data[, c("Age", "Hours.per.day", "BPM", "Anxiety",
+df_1 <- data[, c("Hours.per.day", "Age", "Anxiety",
                  "Depression", "Insomnia", "OCD")]
 
 ### PRECISA TER TABELA DE CORRELACAO
@@ -32,7 +32,18 @@ boxplot(data$Age)
 # a quantidade de horas de música por dia varia de 0 a 24, a mediana é 3
 hist(data$Hours.per.day)
 boxplot(data$Hours.per.day)
+
+
 # tirar os outliers
+# Outlier para idade eh superior a 40 anos
+data2 <- data[which(data$Age <= 40 & data$Hours.per.day <= 10),]
+
+
+hist(data2$Age)
+boxplot(data2$Age)
+hist(data2$Hours.per.day)
+boxplot(data2$Hours.per.day)
+
 
 # analise de correlaçao
 plot(df1)
@@ -86,16 +97,18 @@ hist(res3) # normalidade dos erros
 
 # stepwise
 
-age = data$Age
-bpm = data$BPM
-anxiety = data$Anxiety
-depression = data$Depression
-insomnia = data$Insomnia
-ocd = data$OCD
+age = data2$Age
+anxiety = data2$Anxiety
+depression = data2$Depression
+insomnia = data2$Insomnia
+ocd = data2$OCD
 
-lm0<-lm(df_1$Hours.per.day~1)
-lmax<-lm(df_1$Hours.per.day~age+bpm+anxiety+depression+insomnia+ocd)
+lm0<-lm(data2$Hours.per.day~1)
+lmax<-lm(data2$Hours.per.day~age+anxiety+depression+insomnia+ocd)
 step(lm0,scope=list(lower=lm0,upper=lmax),trace=TRUE,test="F")
+
+lmm = lm(formula = data2$Hours.per.day ~ insomnia + age + ocd)
+summary(lmm)
 
 
 #pontos influentes
