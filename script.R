@@ -4,7 +4,7 @@
 library(tidyverse)
 library(DAAG)
 
-setwd('/Users/lucasgomes/Documents/faculdade/modlin')
+
 data <- read.csv('data.csv', stringsAsFactors = T, na.strings="")
 data <- na.omit(data)
 
@@ -96,30 +96,73 @@ hist(res3) # normalidade dos erros
 
 
 # stepwise
-
+df <- data2[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
+               "Insomnia")]
 age = data2$Age
 anxiety = data2$Anxiety
 depression = data2$Depression
 insomnia = data2$Insomnia
 ocd = data2$OCD
+while.working <- data2$While.working
+instrumentalist <- data2$Instrumentalist
+fav.genre <- data2$Fav.genre
+
 
 lm0<-lm(data2$Hours.per.day~1)
-lmax<-lm(data2$Hours.per.day~age+anxiety+depression+insomnia+ocd)
+lmax<-lm(data2$Hours.per.day~age+anxiety+depression+insomnia+ocd+while.working+instrumentalist+fav.genre)
 step(lm0,scope=list(lower=lm0,upper=lmax),trace=TRUE,test="F")
 
-lmm = lm(formula = data2$Hours.per.day ~ insomnia + age + ocd)
+# Ajustando modelo proposto pelo stepwise
+lmm <- lm(formula = data2$Hours.per.day ~ while.working + insomnia + 
+     instrumentalist + age + ocd)
 summary(lmm)
 
+# Fazendo transformação log
+Y <- ifelse(data2$Hours.per.day == 0, 0.1, data2$Hours.per.day)
+lmmln <- lm(formula = log(Y) ~ while.working + insomnia + 
+              instrumentalist + age + ocd)
+summary(lmmln)
+
+shapiro.test(lmmln$residuals)
 
 #pontos influentes
-infmed=influence.measures(fit3)
+infmed=influence.measures(lmmln)
 infmed
 summary(infmed)
 
+influence.rows <- row.names(summary(infmed)) 
 
+# removendo pontos influentes
+data3 <- data2[which(!(row.names(data2) %in% influence.rows)),]
 
+age = data3$Age
+anxiety = data3$Anxiety
+depression = data3$Depression
+insomnia = data3$Insomnia
+ocd = data3$OCD
+while.working <- data3$While.working
+instrumentalist <- data3$Instrumentalist
+fav.genre <- data3$Fav.genre
 
+# segundo stepwise (sem pontos influentes)
+lm0<-lm(data3$Hours.per.day~1)
+lmax<-lm(data3$Hours.per.day~age+anxiety+depression+insomnia+ocd+while.working+instrumentalist+fav.genre)
+step(lm0,scope=list(lower=lm0,upper=lmax),trace=TRUE,test="F")
 
+# ajustando o modelo
+Y <- ifelse(data3$Hours.per.day == 0, 0.1, data3$Hours.per.day)
+lmmln2 <- lm(formula = log(Y) ~ while.working + insomnia + 
+               instrumentalist + age + ocd)
+summary(lmmln2)
+
+shapiro.test(lmmln2$residuals)
+
+# ajustando modelo sem ocd (não significante)
+lmmln3 <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + age)
+
+summary(lmmln3)
+
+shapiro.test(lmmln3$residuals)
 
 ### requisitos
 # resumo, palavras-chave, introducao com motivacao, revisao bibliografica,
