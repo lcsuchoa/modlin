@@ -3,6 +3,10 @@
 
 library(tidyverse)
 library(DAAG)
+library(nortest)
+library(lawstat)
+library(lmtest)
+library(MASS)
 
 
 data <- read.csv('data.csv', stringsAsFactors = T, na.strings="")
@@ -49,7 +53,6 @@ boxplot(data2$Hours.per.day)
 plot(df1)
 cor(df1$Age, df1$Hours.per.day)
 cor(df1$Anxiety, df1$Depression)
-vif(fit1)
 
 
 
@@ -79,20 +82,10 @@ df3 <- data[,c("Hours.per.day", "While.working", "Instrumentalist", "Composer",
 
 
 fit1 <- lm(Hours.per.day ~ ., data=df1)
-summary(fit)
-
-fit2 <- lm(Hours.per.day ~ .-1, data=df2)
-summary(fit2)
+summary(fit1)
 
 fit3 <- lm(Hours.per.day ~ ., data = df3)
 summary(fit3)
-
-
-res3 = rstudent(fit3)
-plot(fit3$fitted.values, res3) # homoscedastidicidade, outlier e relacao linear
-abline(h=0)
-
-hist(res3) # normalidade dos erros
 
 
 # stepwise
@@ -117,6 +110,11 @@ lmm <- lm(formula = data2$Hours.per.day ~ while.working + insomnia +
      instrumentalist + age + ocd)
 summary(lmm)
 
+res = rstudent(lmm)
+plot(lmm$fitted.values, res) # homoscedastidicidade, outlier e relacao linear
+abline(h=0)
+
+hist(res) # normalidade dos erros
 # Fazendo transformação log
 Y <- ifelse(data2$Hours.per.day == 0, 0.1, data2$Hours.per.day)
 lmmln <- lm(formula = log(Y) ~ while.working + insomnia + 
@@ -163,6 +161,86 @@ lmmln3 <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + age
 summary(lmmln3)
 
 shapiro.test(lmmln3$residuals)
+lillie.test(lmmln3$residuals)
+bptest(formula(lmmln3), studentize=T)
+
+boxcox(Y~insomnia,lab=seq(-1,1,1/10))
+
+
+lillie.test(age)
+
+lillie.test(sqrt(age))
+
+fit.log <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + data3$Composer + age)
+
+summary(fit.log)
+
+shapiro.test(fit.log$residuals)
+lillie.test(fit.log$residuals)
+bptest(formula(fit.log), studentize=T)
+
+hist(sqrt(insomnia))
+
+data4 <- data3[which(data3$Age <= 30 & data3$Hours.per.day <= 8),]
+
+age = data4$Age
+anxiety = data4$Anxiety
+depression = data4$Depression
+insomnia = data4$Insomnia
+ocd = data4$OCD
+while.working <- data4$While.working
+instrumentalist <- data4$Instrumentalist
+composer <- data4$Composer
+bpm <- data4$BPM
+
+Y <- ifelse(data4$Hours.per.day == 0, 0.1, data4$Hours.per.day)
+
+Y <- data4$Hours.per.day
+
+boxplot(age)
+
+fit.log <- lm(formula = sqrt(Y) ~ while.working + insomnia + instrumentalist + composer)
+
+summary(fit.log)
+
+shapiro.test(fit.log$residuals)
+lillie.test(fit.log$residuals)
+bptest(formula(fit.log), studentize=T)
+
+hist(sqrt(Y))
+
+infmed=influence.measures(fit.log)
+infmed
+summary(infmed)
+
+influence.rows <- row.names(summary(infmed)) 
+
+# removendo pontos influentes
+data5 <- data4[which(!(row.names(data4) %in% influence.rows)),]
+
+age = data5$Age
+anxiety = data5$Anxiety
+depression = data5$Depression
+insomnia = data5$Insomnia
+ocd = data5$OCD
+while.working <- data5$While.working
+instrumentalist <- data5$Instrumentalist
+composer <- data5$Composer
+bpm <- data5$BPM
+
+# Y <- ifelse(data5$Hours.per.day == 0, 0.1, data5$Hours.per.day)
+
+Y <- data5$Hours.per.day
+
+boxplot(age)
+
+fit.log <- lm(formula = sqrt(Y) ~ while.working + insomnia)
+
+summary(fit.log)
+
+shapiro.test(fit.log$residuals)
+lillie.test(fit.log$residuals)
+bptest(formula(fit.log), studentize=T)
 
 ### requisitos
 # resumo, palavras-chave, introducao com motivacao, revisao bibliografica,
