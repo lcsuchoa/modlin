@@ -99,15 +99,16 @@ ocd = data2$OCD
 while.working <- data2$While.working
 instrumentalist <- data2$Instrumentalist
 fav.genre <- data2$Fav.genre
+composer <- data2$Composer
 
 
 lm0<-lm(data2$Hours.per.day~1)
-lmax<-lm(data2$Hours.per.day~age+anxiety+depression+insomnia+ocd+while.working+instrumentalist+fav.genre)
+lmax<-lm(data2$Hours.per.day~age+anxiety+depression+insomnia+ocd+while.working+instrumentalist+fav.genre+composer)
 step(lm0,scope=list(lower=lm0,upper=lmax),trace=TRUE,test="F")
 
 # Ajustando modelo proposto pelo stepwise
 lmm <- lm(formula = data2$Hours.per.day ~ while.working + insomnia + 
-     instrumentalist + age + ocd)
+            instrumentalist + composer + age + ocd)
 summary(lmm)
 
 res = rstudent(lmm)
@@ -118,7 +119,7 @@ hist(res) # normalidade dos erros
 # Fazendo transformação log
 Y <- ifelse(data2$Hours.per.day == 0, 0.1, data2$Hours.per.day)
 lmmln <- lm(formula = log(Y) ~ while.working + insomnia + 
-              instrumentalist + age + ocd)
+              instrumentalist + age + ocd + composer)
 summary(lmmln)
 
 shapiro.test(lmmln$residuals)
@@ -141,47 +142,40 @@ ocd = data3$OCD
 while.working <- data3$While.working
 instrumentalist <- data3$Instrumentalist
 fav.genre <- data3$Fav.genre
+composer <- data3$Composer
 
 # segundo stepwise (sem pontos influentes)
 lm0<-lm(data3$Hours.per.day~1)
-lmax<-lm(data3$Hours.per.day~age+anxiety+depression+insomnia+ocd+while.working+instrumentalist+fav.genre)
+lmax<-lm(data3$Hours.per.day~age+anxiety+depression+insomnia+ocd+while.working+instrumentalist+fav.genre+composer)
 step(lm0,scope=list(lower=lm0,upper=lmax),trace=TRUE,test="F")
 
 # ajustando o modelo
 Y <- ifelse(data3$Hours.per.day == 0, 0.1, data3$Hours.per.day)
 lmmln2 <- lm(formula = log(Y) ~ while.working + insomnia + 
-               instrumentalist + age + ocd)
+               instrumentalist + composer + age + ocd)
 summary(lmmln2)
 
 shapiro.test(lmmln2$residuals)
 
 # ajustando modelo sem ocd (não significante)
-lmmln3 <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + age)
+lmmln3 <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + age + composer)
 
 summary(lmmln3)
 
 shapiro.test(lmmln3$residuals)
-lillie.test(lmmln3$residuals)
 bptest(formula(lmmln3), studentize=T)
 
-boxcox(Y~insomnia,lab=seq(-1,1,1/10))
-
-
-lillie.test(age)
-
-lillie.test(sqrt(age))
-
-fit.log <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + data3$Composer + age)
+fit.log <- lm(formula = log(Y) ~ while.working + insomnia + instrumentalist + composer + age)
 
 summary(fit.log)
 
 shapiro.test(fit.log$residuals)
-lillie.test(fit.log$residuals)
 bptest(formula(fit.log), studentize=T)
 
 hist(sqrt(insomnia))
 
-data4 <- data3[which(data3$Age <= 30 & data3$Hours.per.day <= 8),]
+data4 <- data3[which(data3$Age <= 30 & data3$Age >= 16 & data3$Hours.per.day <= 8),]
+data4 <- data3[which(data3$Age <= 30 & data3$Age >= 18 & data3$Hours.per.day <= 8),]
 
 age = data4$Age
 anxiety = data4$Anxiety
@@ -199,17 +193,18 @@ Y <- data4$Hours.per.day
 
 boxplot(age)
 
-fit.log <- lm(formula = sqrt(Y) ~ while.working + insomnia + instrumentalist + composer)
+fit.sqrt <- lm(formula = sqrt(Y) ~ while.working + insomnia + composer)
 
-summary(fit.log)
+summary(fit.sqrt)
 
-shapiro.test(fit.log$residuals)
-lillie.test(fit.log$residuals)
-bptest(formula(fit.log), studentize=T)
+shapiro.test(fit.sqrt$residuals)
+bptest(formula(fit.sqrt), studentize=T)
+
+fit.sqrt <- lm(formula = sqrt(Y) ~ while.working + insomnia)
 
 hist(sqrt(Y))
 
-infmed=influence.measures(fit.log)
+infmed=influence.measures(fit.sqrt)
 infmed
 summary(infmed)
 
@@ -234,13 +229,27 @@ Y <- data5$Hours.per.day
 
 boxplot(age)
 
-fit.log <- lm(formula = sqrt(Y) ~ while.working + insomnia)
+fit.sqrt <- lm(formula = sqrt(Y) ~ while.working + insomnia)
 
-summary(fit.log)
+summary(fit.sqrt)
 
-shapiro.test(fit.log$residuals)
-lillie.test(fit.log$residuals)
-bptest(formula(fit.log), studentize=T)
+shapiro.test(fit.sqrt$residuals)
+bptest(formula(fit.sqrt), studentize=T)
+
+
+res_t = rstudent(fit.sqrt)
+
+# Histograma
+hist(res_t)
+
+# qq plot
+qqnorm(res_t)
+qqline(res_t)
+
+plot(fit.sqrt$fitted.values,res_t)
+abline(h=0)
+
+ks.test(res_t,pnorm)
 
 ### requisitos
 # resumo, palavras-chave, introducao com motivacao, revisao bibliografica,
